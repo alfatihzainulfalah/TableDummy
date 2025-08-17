@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabel Dummy - Vue.js</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <h1>📦 Daftar Produk</h1>
+            
+            <!-- Search Box -->
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    v-model="searchQuery" 
+                    placeholder="🔍 Cari produk..." 
+                    class="search-input"
+                >
+            </div>
+
+            <!-- Product Table -->
+            <div class="table-container">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Produk</th>
+                            <th>Kategori</th>
+                            <th>Harga</th>
+                            <th>Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(product, index) in filteredProducts" :key="product.id">
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ product.name }}</td>
+                            <td>
+                                <span class="category-badge" :class="getCategoryClass(product.category)">
+                                    {{ product.category }}
+                                </span>
+                            </td>
+                            <td class="price">{{ formatPrice(product.price) }}</td>
+                            <td>
+                                <span class="stock-badge" :class="getStockClass(product.stock)">
+                                    {{ product.stock }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- No Results Message -->
+                <div v-if="filteredProducts.length === 0" class="no-results">
+                    <p>🔍 Tidak ada produk yang ditemukan</p>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary">
+                <p>Menampilkan {{ filteredProducts.length }} dari {{ products.length }} produk</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue.js CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
+<style>
+/* style.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Search Container */
+.search-container {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px 20px;
+    border: 2px solid #e3f2fd;
+    border-radius: 50px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.search-input:focus {
+    border-color: #42a5f5;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(66, 165, 245, 0.2);
+}
+
+/* Table Container */
+.table-container {
+    overflow-x: auto;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.product-table thead {
+    background: linear-gradient(135deg, #42a5f5, #1e88e5);
+    color: white;
+}
+
+.product-table th {
+    padding: 20px 15px;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+
+.product-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.product-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.product-table tbody tr:hover {
+    background: linear-gradient(90deg, #e3f2fd, #bbdefb);
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-table td {
+    padding: 18px 15px;
+    vertical-align: middle;
+    transition: all 0.3s ease;
+}
+
+/* Price Styling */
+.price {
+    font-weight: 600;
+    color: #2e7d32;
+    font-size: 16px;
+}
+
+/* Category Badge */
+.category-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-elektronik { background: #e3f2fd; color: #1565c0; }
+.category-fashion { background: #fce4ec; color: #c2185b; }
+.category-makanan { background: #e8f5e8; color: #2e7d32; }
+.category-olahraga { background: #fff3e0; color: #f57c00; }
+.category-buku { background: #f3e5f5; color: #7b1fa2; }
+
+/* Stock Badge */
+.stock-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: center;
+}
+
+.stock-high { background: #c8e6c9; color: #2e7d32; }
+.stock-medium { background: #fff3c4; color: #f57c00; }
+.stock-low { background: #ffcdd2; color: #d32f2f; }
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 50px 20px;
+    color: #666;
+    font-size: 18px;
+    background: white;
+    border-radius: 15px;
+}
+
+/* Summary */
+.summary {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .product-table th,
+    .product-table td {
+        padding: 12px 8px;
+        font-size: 14px;
+    }
+    
+    .search-input {
+        font-size: 14px;
+        padding: 12px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-table th:first-child,
+    .product-table td:first-child {
+        display: none;
+    }
+    
+    .category-badge,
+    .stock-badge {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+}
+</style>
+
+<script>
+// app.js
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            searchQuery: '',
+            products: [
+                {
+                    id: 1,
+                    name: 'iPhone 14 Pro Max',
+                    category: 'Elektronik',
+                    price: 18999000,
+                    stock: 15
+                },
+                {
+                    id: 2,
+                    name: 'MacBook Air M2',
+                    category: 'Elektronik',
+                    price: 21999000,
+                    stock: 8
+                },
+                {
+                    id: 3,
+                    name: 'Nike Air Jordan 1',
+                    category: 'Fashion',
+                    price: 2499000,
+                    stock: 25
+                },
+                {
+                    id: 4,
+                    name: 'Kopi Arabica Premium',
+                    category: 'Makanan',
+                    price: 125000,
+                    stock: 50
+                },
+                {
+                    id: 5,
+                    name: 'Samsung Galaxy S23 Ultra',
+                    category: 'Elektronik',
+                    price: 16999000,
+                    stock: 12
+                },
+                {
+                    id: 6,
+                    name: 'Adidas Ultraboost 22',
+                    category: 'Olahraga',
+                    price: 2899000,
+                    stock: 18
+                },
+                {
+                    id: 7,
+                    name: 'Uniqlo Heattech Shirt',
+                    category: 'Fashion',
+                    price: 299000,
+                    stock: 35
+                },
+                {
+                    id: 8,
+                    name: 'Cokelat Silverqueen',
+                    category: 'Makanan',
+                    price: 15000,
+                    stock: 100
+                },
+                {
+                    id: 9,
+                    name: 'Buku "Atomic Habits"',
+                    category: 'Buku',
+                    price: 89000,
+                    stock: 22
+                },
+                {
+                    id: 10,
+                    name: 'Sony WH-1000XM4',
+                    category: 'Elektronik',
+                    price: 4299000,
+                    stock: 6
+                },
+                {
+                    id: 11,
+                    name: 'Levi\'s 501 Original Jeans',
+                    category: 'Fashion',
+                    price: 899000,
+                    stock: 28
+                },
+                {
+                    id: 12,
+                    name: 'Matras Yoga Premium',
+                    category: 'Olahraga',
+                    price: 350000,
+                    stock: 15
+                },
+                {
+                    id: 13,
+                    name: 'Green Tea Latte Powder',
+                    category: 'Makanan',
+                    price: 85000,
+                    stock: 40
+                },
+                {
+                    id: 14,
+                    name: 'The Psychology of Money',
+                    category: 'Buku',
+                    price: 95000,
+                    stock: 18
+                },
+                {
+                    id: 15,
+                    name: 'Apple Watch Series 8',
+                    category: 'Elektronik',
+                    price: 5999000,
+                    stock: 3
+                }
+            ]
+        }
+    },
+    computed: {
+        filteredProducts() {
+            if (!this.searchQuery) {
+                return this.products;
+            }
+            return this.products.filter(product =>
+                product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+            );
+        }
+    },
+    methods: {
+        formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(price);
+        },
+        getCategoryClass(category) {
+            return 'category-' + category.toLowerCase().replace(/\s+/g, '-');
+        },
+        getStockClass(stock) {
+            if (stock >= 20) return 'stock-high';
+            if (stock >= 10) return 'stock-medium';
+            return 'stock-low';
+        }
+    }
+}).mount('#app');
+</script>
